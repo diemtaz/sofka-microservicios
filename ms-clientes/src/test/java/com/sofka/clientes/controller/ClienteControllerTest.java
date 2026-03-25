@@ -5,7 +5,6 @@ import com.sofka.clientes.exception.GlobalExceptionHandler;
 import com.sofka.clientes.exception.RecursoDuplicadoException;
 import com.sofka.clientes.exception.RecursoNoEncontradoException;
 import com.sofka.clientes.model.dto.ClientePatchDTO;
-import com.sofka.clientes.model.dto.ClienteRequestDTO;
 import com.sofka.clientes.model.dto.ClienteResponseDTO;
 import com.sofka.clientes.service.IClienteService;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,16 +25,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Pruebas unitarias de endpoints del ClienteController.
- * Cubre todos los verbos: GET, POST, PUT, PATCH, DELETE.
- *
- * PUNTO CLAVE DE SUSTENTACIÓN:
- * - @WebMvcTest carga solo la capa web: sin JPA, sin RabbitMQ.
- * - @MockBean reemplaza el servicio real por un doble de prueba.
- * - jsonPath() valida estructura y valores exactos del JSON de respuesta.
- * - Cada test es independiente (no comparte estado).
- */
 @WebMvcTest(ClienteController.class)
 @Import(GlobalExceptionHandler.class)
 @DisplayName("Pruebas de endpoints — ClienteController (todos los verbos)")
@@ -46,7 +35,6 @@ class ClienteControllerTest {
     @MockBean  IClienteService clienteService;
 
     private ClienteResponseDTO responseDTO;
-    private ClienteRequestDTO  requestDTO;
 
     @BeforeEach
     void setUp() {
@@ -55,12 +43,38 @@ class ClienteControllerTest {
                 .genero("Masculino").edad(30).identificacion("0101010101")
                 .direccion("Otavalo sn y principal").telefono("098254785")
                 .estado(true).build();
+    }
 
-        requestDTO = ClienteRequestDTO.builder()
-                .nombre("Jose Lema").genero("Masculino").edad(30)
-                .identificacion("0101010101").direccion("Otavalo sn y principal")
-                .telefono("098254785").clienteId("jose123")
-                .contrasena("1234").estado(true).build();
+    private String clienteJson() {
+        return """
+        {
+        "nombre": "Jose Lema",
+        "genero": "Masculino",
+        "edad": 30,
+        "identificacion": "0101010101",
+        "direccion": "Otavalo sn y principal",
+        "telefono": "098254785",
+        "clienteId": "jose123",
+        "contrasena": "1234",
+        "estado": true
+        }
+        """;
+    }
+
+    private String clienteJsonSinNombre() {
+        return """
+        {
+        "nombre": "",
+        "genero": "Masculino",
+        "edad": 30,
+        "identificacion": "0101010101",
+        "direccion": "Otavalo sn y principal",
+        "telefono": "098254785",
+        "clienteId": "jose123",
+        "contrasena": "1234",
+        "estado": true
+        }
+        """;
     }
 
     // ──────────────────────────────────────────────────────────────────
@@ -115,7 +129,7 @@ class ClienteControllerTest {
 
         mockMvc.perform(post("/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
+                        .content(clienteJson()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.clienteId").value("jose123"))
                 .andExpect(jsonPath("$.nombre").value("Jose Lema"));
@@ -124,11 +138,10 @@ class ClienteControllerTest {
     @Test
     @DisplayName("POST /clientes sin nombre → 400 con detalle de validación")
     void crear_SinNombre_DebeRetornar400() throws Exception {
-        requestDTO.setNombre("");
 
         mockMvc.perform(post("/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
+                        .content(clienteJsonSinNombre()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detalles.nombre").exists());
     }
@@ -142,7 +155,7 @@ class ClienteControllerTest {
 
         mockMvc.perform(post("/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
+                        .content(clienteJson()))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409));
     }
@@ -158,7 +171,7 @@ class ClienteControllerTest {
 
         mockMvc.perform(put("/clientes/jose123")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
+                        .content(clienteJson()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clienteId").value("jose123"));
     }
@@ -172,7 +185,7 @@ class ClienteControllerTest {
 
         mockMvc.perform(put("/clientes/noExiste")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDTO)))
+                        .content(clienteJson()))
                 .andExpect(status().isNotFound());
     }
 
