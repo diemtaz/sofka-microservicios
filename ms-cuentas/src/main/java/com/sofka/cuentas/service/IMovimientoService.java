@@ -19,8 +19,9 @@ public interface IMovimientoService {
     void eliminar(Long id);
 
     // F4 - Reporte
-    List<ReporteMovimientoDTO> generarReporte(
+    Page<ReporteMovimientoDTO> generarReporte(
             String clienteId,
             LocalDateTime fechaInicio,
-            LocalDateTime fechaFin);
+            LocalDateTime fechaFin,
+            Pageable pageable);
 }

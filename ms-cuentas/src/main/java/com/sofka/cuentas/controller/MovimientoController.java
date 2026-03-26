@@ -81,9 +81,10 @@ public class MovimientoController {
     // URL completa: GET http://localhost:8082/api/reportes?fecha=2022-01-01,2022-12-31&clienteId=jose123
 
     @GetMapping("/reportes")
-    public ResponseEntity<List<ReporteMovimientoDTO>> generarReporte(
+    public ResponseEntity<Page<ReporteMovimientoDTO>> generarReporte(
             @RequestParam String fecha,
-            @RequestParam String clienteId) {
+            @RequestParam String clienteId,
+            Pageable pageable) {
 
         String[] partes = fecha.split(",");
         LocalDateTime fechaInicio = LocalDate.parse(partes[0].trim()).atStartOfDay();
@@ -92,6 +93,6 @@ public class MovimientoController {
                 : LocalDateTime.now();
 
         return ResponseEntity.ok(
-                movimientoService.generarReporte(clienteId, fechaInicio, fechaFin));
+                movimientoService.generarReporte(clienteId, fechaInicio, fechaFin, pageable));
     }
 }

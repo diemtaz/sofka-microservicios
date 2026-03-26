@@ -165,28 +165,26 @@ public class MovimientoServiceImpl implements IMovimientoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReporteMovimientoDTO> generarReporte(
-            String clienteId, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+    public Page<ReporteMovimientoDTO> generarReporte(
+            String clienteId, LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable) {
 
         String nombreCliente = clienteRefRepository.findByClienteId(clienteId)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "Cliente no encontrado con clienteId: " + clienteId))
                 .getNombre();
+        
+        Page<Movimiento> movimientosPage = movimientoRepository
+            .findByClienteIdAndFechaBetween(clienteId, fechaInicio, fechaFin, pageable);
 
-        List<Movimiento> movimientos = movimientoRepository
-                .findByClienteIdAndFechaBetween(clienteId, fechaInicio, fechaFin);
-
-        return movimientos.stream()
-                .map(m -> ReporteMovimientoDTO.builder()
-                        .fecha(m.getFecha())
-                        .cliente(nombreCliente)
-                        .numeroCuenta(m.getCuenta().getNumeroCuenta())
-                        .tipo(m.getCuenta().getTipoCuenta())
-                        .saldoInicial(m.getCuenta().getSaldoInicial())
-                        .estado(m.getCuenta().getEstado())
-                        .movimiento(m.getValor())
-                        .saldoDisponible(m.getSaldo())
-                        .build())
-                .collect(Collectors.toList());
+        return movimientosPage.map(m -> ReporteMovimientoDTO.builder()
+            .fecha(m.getFecha())
+            .cliente(nombreCliente)
+            .numeroCuenta(m.getCuenta().getNumeroCuenta())
+            .tipo(m.getCuenta().getTipoCuenta())
+            .saldoInicial(m.getCuenta().getSaldoInicial())
+            .estado(m.getCuenta().getEstado())
+            .movimiento(m.getValor())
+            .saldoDisponible(m.getSaldo())
+            .build());
     }
 }

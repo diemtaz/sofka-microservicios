@@ -17,6 +17,7 @@ public class CuentaRequestDTO {
     @DecimalMin(value = "0.0", message = "El saldo inicial no puede ser negativo")
     private BigDecimal saldoInicial;
 
+    @Builder.Default
     private Boolean estado = true;
 
     @NotBlank(message = "El clienteId es obligatorio")

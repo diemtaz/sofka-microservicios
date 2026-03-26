@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 @Repository
 public interface MovimientoRepository extends JpaRepository<Movimiento, Long> {
@@ -20,10 +23,11 @@ public interface MovimientoRepository extends JpaRepository<Movimiento, Long> {
           AND m.fecha BETWEEN :fechaInicio AND :fechaFin
         ORDER BY m.fecha DESC
         """)
-    List<Movimiento> findByClienteIdAndFechaBetween(
+    Page<Movimiento> findByClienteIdAndFechaBetween(
             @Param("clienteId") String clienteId,
             @Param("fechaInicio") LocalDateTime fechaInicio,
-            @Param("fechaFin") LocalDateTime fechaFin);
+            @Param("fechaFin") LocalDateTime fechaFin,
+            Pageable pageable);
 
     List<Movimiento> findByCuenta_NumeroCuenta(String numeroCuenta);
 }

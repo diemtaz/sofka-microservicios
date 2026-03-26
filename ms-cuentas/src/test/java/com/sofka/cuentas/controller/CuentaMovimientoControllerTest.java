@@ -344,15 +344,20 @@ class CuentaMovimientoControllerTest {
                 .tipo("Corriente").saldoInicial(new BigDecimal("100"))
                 .movimiento(new BigDecimal("600")).saldoDisponible(new BigDecimal("700"))
                 .estado(true).build();
+        Page<ReporteMovimientoDTO> page = new PageImpl<>(
+                List.of(reporte),
+                PageRequest.of(0, 10),
+                1
+        );
 
-        when(movimientoService.generarReporte(eq("marianela456"), any(), any()))
-                .thenReturn(List.of(reporte));
+        when(movimientoService.generarReporte(eq("marianela456"), any(), any(), any(Pageable.class)))
+                .thenReturn(page);
 
         mockMvc.perform(get("/reportes")
                         .param("fecha", "2022-01-01,2022-12-31")
                         .param("clienteId", "marianela456"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].Cliente").value("Marianela Montalvo"))
-                .andExpect(jsonPath("$[0]['Saldo Disponible']").value(700.0));
+                .andExpect(jsonPath("$.content[0].Cliente").value("Marianela Montalvo"))
+                .andExpect(jsonPath("$.content[0]['Saldo Disponible']").value(700.0));
     }
 }
