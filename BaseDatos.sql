@@ -29,8 +29,6 @@ CREATE TABLE IF NOT EXISTS cliente (
 -- ═══════════════════════════════════════════════════════════════════════════
 -- ESQUEMA MS-CUENTAS (referencia — JPA lo crea automáticamente con ddl-auto)
 -- ═══════════════════════════════════════════════════════════════════════════
--- Ejecutar esto en db_cuentas si se quieren datos de prueba iniciales:
-
 -- cliente_ref: referencia local sincronizada desde MS-Clientes via RabbitMQ
  CREATE TABLE IF NOT EXISTS cliente_ref (
      id         BIGSERIAL   PRIMARY KEY,

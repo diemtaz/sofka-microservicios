@@ -15,8 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Implementación de la lógica de negocio para Clientes.
@@ -33,12 +33,10 @@ public class ClienteServiceImpl implements IClienteService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ClienteResponseDTO> listarTodos() {
+    public Page<ClienteResponseDTO> listarTodos(Pageable pageable) {
         log.debug("Listando todos los clientes");
-        return clienteRepository.findAll()
-                .stream()
-                .map(clienteMapper::toDTO)
-                .collect(Collectors.toList());
+        return clienteRepository.findAll(pageable)
+                .map(clienteMapper::toDTO);
     }
 
     @Override

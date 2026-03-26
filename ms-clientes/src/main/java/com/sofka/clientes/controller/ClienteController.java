@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 /**
  * Controlador REST para el recurso /clientes.
  * - @Valid activa las validaciones Bean Validation del DTO (NotBlank, NotNull, etc.)
@@ -28,8 +31,8 @@ public class ClienteController {
     private final IClienteService clienteService;
 
     @GetMapping
-    public ResponseEntity<List<ClienteResponseDTO>> listarTodos() {
-        return ResponseEntity.ok(clienteService.listarTodos());
+    public ResponseEntity<Page<ClienteResponseDTO>> listarTodos(Pageable pageable) {
+        return ResponseEntity.ok(clienteService.listarTodos(pageable));
     }
 
     @GetMapping("/{clienteId}")

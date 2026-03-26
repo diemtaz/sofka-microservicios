@@ -25,6 +25,12 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import static org.mockito.ArgumentMatchers.any;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+
 @WebMvcTest(ClienteController.class)
 @Import(GlobalExceptionHandler.class)
 @DisplayName("Pruebas de endpoints — ClienteController (todos los verbos)")
@@ -84,14 +90,20 @@ class ClienteControllerTest {
     @Test
     @DisplayName("GET /clientes → 200 con lista de clientes")
     void listarTodos_DebeRetornar200ConLista() throws Exception {
-        when(clienteService.listarTodos()).thenReturn(List.of(responseDTO));
+
+         Page<ClienteResponseDTO> page = new PageImpl<>(
+                List.of(responseDTO), 
+                PageRequest.of(0, 10),
+                1
+        );
+        when(clienteService.listarTodos(any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/clientes"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].clienteId").value("jose123"))
-                .andExpect(jsonPath("$[0].nombre").value("Jose Lema"))
-                .andExpect(jsonPath("$[0].estado").value(true));
+                .andExpect(jsonPath("$.content[0].clienteId").value("jose123"))
+                .andExpect(jsonPath("$.content[0].nombre").value("Jose Lema"))
+                .andExpect(jsonPath("$.content[0].estado").value(true));
     }
 
     @Test

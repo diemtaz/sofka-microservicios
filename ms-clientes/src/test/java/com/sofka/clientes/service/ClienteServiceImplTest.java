@@ -24,6 +24,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import static org.mockito.ArgumentMatchers.any;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Pruebas unitarias - ClienteService")
@@ -139,16 +145,17 @@ class ClienteServiceImplTest {
     @Test
     @DisplayName("Debe retornar lista de clientes mapeados a DTO")
     void listarTodos_DebeRetornarListaDeClientes() {
-        // ARRANGE
-        when(clienteRepository.findAll()).thenReturn(List.of(clienteEntity));
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Cliente> page = new PageImpl<>(List.of(clienteEntity));
+        
+        when(clienteRepository.findAll(any(Pageable.class))).thenReturn(page);
         when(clienteMapper.toDTO(clienteEntity)).thenReturn(responseDTO);
 
-        // ACT
-        List<ClienteResponseDTO> resultado = clienteService.listarTodos();
+        Page<ClienteResponseDTO> resultado = clienteService.listarTodos(pageable);
 
-        // ASSERT
-        assertThat(resultado).isNotEmpty().hasSize(1);
-        assertThat(resultado.get(0).getClienteId()).isEqualTo("jose123");
+        assertThat(resultado).isNotEmpty();
+        assertThat(resultado.getContent().get(0).getClienteId()).isEqualTo("jose123");
+        verify(clienteRepository).findAll(pageable);
     }
 
     // ─────────────────────────────────────────────────────────────────

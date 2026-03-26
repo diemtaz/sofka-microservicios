@@ -4,7 +4,9 @@ import com.sofka.clientes.model.dto.ClientePatchDTO;
 import com.sofka.clientes.model.dto.ClienteRequestDTO;
 import com.sofka.clientes.model.dto.ClienteResponseDTO;
 
-import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Interfaz del servicio. Definir contrato via interfaz es buena práctica:
@@ -13,7 +15,7 @@ import java.util.List;
  * - Sigue el principio de Inversión de Dependencias (SOLID - D)
  */
 public interface IClienteService {
-    List<ClienteResponseDTO> listarTodos();
+    Page<ClienteResponseDTO> listarTodos(Pageable pageable);
     ClienteResponseDTO buscarPorClienteId(String clienteId);
     ClienteResponseDTO crear(ClienteRequestDTO dto);
     ClienteResponseDTO actualizar(String clienteId, ClienteRequestDTO dto);
